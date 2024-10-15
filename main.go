@@ -14,7 +14,7 @@ import (
 func updateService(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	serviceName := vars["servicename"] // Obtener el nombre del servicio de la ruta
-
+	log.Println("Recibida peticion para actualizar el servicio:", serviceName)
 	// Crear cliente Docker usando el socket por defecto
 	cli, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation())
 	if err != nil {
