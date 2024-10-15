@@ -18,6 +18,7 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 	// Crear cliente Docker usando el socket por defecto
 	cli, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation())
 	if err != nil {
+		log.Println("Error al conectar con Docker:", err.Error())
 		http.Error(w, "Error al conectar con Docker", http.StatusInternalServerError)
 		return
 	}
@@ -25,6 +26,7 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 
 	service, _, err := cli.ServiceInspectWithRaw(context.Background(), serviceName, types.ServiceInspectOptions{})
 	if err != nil {
+		log.Println("Error al inspeccionar el servicio:", err.Error())
 		http.Error(w, "Error al inspeccionar el servicio", http.StatusInternalServerError)
 		return
 	}
@@ -32,6 +34,7 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 	// Realiza el service update
 	response, err := cli.ServiceUpdate(context.Background(), service.ID, service.Version, service.Spec, types.ServiceUpdateOptions{})
 	if err != nil {
+		log.Println("Error al actualizar el servicio:", err.Error())
 		http.Error(w, "Error al actualizar el servicio", http.StatusInternalServerError)
 		return
 	}
