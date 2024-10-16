@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/image"
@@ -26,6 +27,11 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "Servicio actualizado correctamente con la nueva imagen.")
+}
+
+func removeDigest(imageName string) string {
+	parts := strings.Split(imageName, "@")
+	return parts[0] // Retorna solo la parte antes del digest
 }
 
 func updateServiceWithNewImage(serviceName string) error {
@@ -49,7 +55,7 @@ func updateServiceWithNewImage(serviceName string) error {
 
 	// Hacer pull de la imagen actual del servicio
 	imageName := service.Spec.TaskTemplate.ContainerSpec.Image
-	imagePullResponse, err := cli.ImagePull(context.Background(), imageName, image.PullOptions{})
+	imagePullResponse, err := cli.ImagePull(context.Background(), removeDigest(imageName), image.PullOptions{})
 	if err != nil {
 		log.Println("Error al hacer pull de la imagen:", err.Error())
 		return fmt.Errorf("Error al hacer pull de la imagen: %w", err)
