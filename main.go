@@ -44,6 +44,9 @@ func updateServiceWithNewImage(serviceName string) error {
 		return fmt.Errorf("Error al obtener detalles del servicio: %w", err)
 	}
 
+	currentImageDigest := service.Spec.TaskTemplate.ContainerSpec.Image
+	log.Println("Digest de la imagen actual:", currentImageDigest)
+
 	// Hacer pull de la imagen actual del servicio
 	imageName := service.Spec.TaskTemplate.ContainerSpec.Image
 	imagePullResponse, err := cli.ImagePull(context.Background(), imageName, image.PullOptions{})
@@ -59,6 +62,22 @@ func updateServiceWithNewImage(serviceName string) error {
 		return fmt.Errorf("Error al leer la respuesta del pull de la imagen: %w", err)
 	}
 
+	// Obtener el digest de la nueva imagen
+	imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageName)
+	if err != nil {
+		log.Println("Error al inspeccionar la imagen:", err.Error())
+		return fmt.Errorf("Error al inspeccionar la imagen: %w", err)
+	}
+
+	if !(len(imageInspect.RepoDigests) > 0) {
+		log.Println("No se pudo obtener el digest de la nueva imagen.")
+		return fmt.Errorf("No se pudo obtener el digest de la nueva imagen.")
+	}
+
+	newImageDigest := imageInspect.RepoDigests[0]
+	log.Println("Digest de la nueva imagen:", newImageDigest)
+
+	service.Spec.TaskTemplate.ContainerSpec.Image = newImageDigest
 	// Incrementar ForceUpdate para forzar la actualización de los contenedores
 	service.Spec.TaskTemplate.ForceUpdate++
 
