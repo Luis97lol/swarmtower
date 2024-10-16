@@ -17,7 +17,9 @@ COPY ./. ./
 
 RUN go build main.go
 
-FROM busybox
+FROM alpine
+
+RUN apk add --no-cache docker-cli
 
 WORKDIR /go
 
