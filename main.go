@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/gorilla/mux"
 )
@@ -33,13 +32,14 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Realizar docker pull de la imagen
-	_, err = cli.ImagePull(context.Background(), service.Spec.TaskTemplate.ContainerSpec.Image, image.PullOptions{})
-	if err != nil {
-		log.Println("Error al hacer pull de la imagen:", err.Error())
-		http.Error(w, "Error al hacer pull de la imagen", http.StatusInternalServerError)
-		return
-	}
+	// _, err = cli.ImagePull(context.Background(), service.Spec.TaskTemplate.ContainerSpec.Image, image.PullOptions{})
+	// if err != nil {
+	// 	log.Println("Error al hacer pull de la imagen:", err.Error())
+	// 	http.Error(w, "Error al hacer pull de la imagen", http.StatusInternalServerError)
+	// 	return
+	// }
 
+	service.Spec.TaskTemplate.ForceUpdate++
 	// Realiza el service update
 	response, err := cli.ServiceUpdate(context.Background(), service.ID, service.Version, service.Spec, types.ServiceUpdateOptions{})
 	if err != nil {
