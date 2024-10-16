@@ -31,6 +31,7 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 
 func removeDigest(imageName string) string {
 	parts := strings.Split(imageName, "@")
+	log.Println("Borrando digest", imageName, parts[0])
 	return parts[0] // Retorna solo la parte antes del digest
 }
 
@@ -55,7 +56,7 @@ func updateServiceWithNewImage(serviceName string) error {
 
 	// Hacer pull de la imagen actual del servicio
 	imageName := service.Spec.TaskTemplate.ContainerSpec.Image
-	imagePullResponse, err := cli.ImagePull(context.Background(), removeDigest(imageName), image.PullOptions{})
+	imagePullResponse, err := cli.ImagePull(context.Background(), removeDigest(imageName)+":latest", image.PullOptions{})
 	if err != nil {
 		log.Println("Error al hacer pull de la imagen:", err.Error())
 		return fmt.Errorf("Error al hacer pull de la imagen: %w", err)
